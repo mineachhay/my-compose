@@ -1,0 +1,47 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    restart: always
+    environment:
+      - UPTIME_KUMA_DB_TYPE=mariadb
+      - UPTIME_KUMA_DB_URL=mysql://kuma_user:kuma_pass@db:3306/uptime_kuma
+      # Node.js has an internal memory limit (usually 2GB). 
+      # This flag allows the app itself to use more of your "unlimited" RAM.
+      - NODE_OPTIONS=--max-old-space-size=8192
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "3001:3001"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    container_name: uptime-kuma-db
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=root_password
+      - MARIADB_DATABASE=uptime_kuma
+      - MARIADB_USER=kuma_user
+      - MARIADB_PASSWORD=kuma_pass
+    volumes:
+      - ./mysql:/var/lib/mysql
+    # Optimized for high-frequency writes on high-resource hardware
+    command: 
+      - --innodb-buffer-pool-size=4G        # Set to ~50% of your total Host RAM
+      - --innodb-log-file-size=1G           # Larger logs prevent write-stalls
+      - --innodb-flush-log-at-trx-commit=2  # Critical for write speed at 2k devices
+      - --max-connections=1000              # Room for high-concurrency bursts
+      - --innodb-io-capacity=2000           # Adjust up if using high-end NVMe
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
