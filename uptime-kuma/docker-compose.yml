@@ -1,4 +1,5 @@
-# docker-compose.yml
+version: "3.8"
+
 services:
   uptime-kuma:
     image: louislam/uptime-kuma:2
@@ -6,7 +7,6 @@ services:
     restart: always
     environment:
       - UPTIME_KUMA_DB_TYPE=mariadb
-      # === FIX: Use the service name 'db' instead of 127.0.0.1 ===
       - UPTIME_KUMA_DB_URL=mysql://${KUMA_DB_USER}:${KUMA_DB_PASSWORD_SECURE}@db:3306/uptime_kuma
       - NODE_OPTIONS=--max-old-space-size=8192
     volumes:
@@ -19,7 +19,6 @@ services:
         max-size: "50m"
         max-file: "5"
     depends_on:
-      # This ensures Uptime Kuma waits for MariaDB to be healthy
       db:
         condition: service_healthy
 
@@ -33,7 +32,7 @@ services:
       - MARIADB_USER=${KUMA_DB_USER}
       - MARIADB_PASSWORD=${KUMA_DB_PASSWORD_SECURE}
     volumes:
-      - ./mysql:/var/lib/mysql
+      - kuma-db-data:/var/lib/mysql
     command: 
       - --innodb-buffer-pool-size=4G
       - --innodb-log-file-size=1G
@@ -41,7 +40,10 @@ services:
       - --max-connections=1000
       - --innodb-io-capacity=2000
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 3
+
+volumes:
+  kuma-db-data:
