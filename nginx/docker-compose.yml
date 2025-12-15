@@ -6,7 +6,9 @@ services:
     container_name: nginx-prod
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./data:/data:ro                # Your custom content directory
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Your custom config
+      - ./data:/data:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
     restart: always
