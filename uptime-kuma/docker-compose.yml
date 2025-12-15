@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       - UPTIME_KUMA_DB_TYPE=mariadb
-      # Reference the variables from the .env file
+      # === FIX: Use the service name 'db' instead of 127.0.0.1 ===
       - UPTIME_KUMA_DB_URL=mysql://${KUMA_DB_USER}:${KUMA_DB_PASSWORD_SECURE}@db:3306/uptime_kuma
       - NODE_OPTIONS=--max-old-space-size=8192
     volumes:
@@ -19,6 +19,7 @@ services:
         max-size: "50m"
         max-file: "5"
     depends_on:
+      # This ensures Uptime Kuma waits for MariaDB to be healthy
       db:
         condition: service_healthy
 
@@ -27,14 +28,12 @@ services:
     container_name: uptime-kuma-db
     restart: always
     environment:
-      # Reference the variables from the .env file
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD_SECURE}
       - MARIADB_DATABASE=uptime_kuma
       - MARIADB_USER=${KUMA_DB_USER}
       - MARIADB_PASSWORD=${KUMA_DB_PASSWORD_SECURE}
     volumes:
       - ./mysql:/var/lib/mysql
-    # MariaDB Optimization settings for high-scale monitoring
     command: 
       - --innodb-buffer-pool-size=4G
       - --innodb-log-file-size=1G
