@@ -7,5 +7,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./html:/usr/share/nginx/html:ro
+      - ./data:/data:ro                # Your custom content directory
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Your custom config
     restart: always
