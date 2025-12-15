@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       - UPTIME_KUMA_DB_TYPE=mariadb
-      - UPTIME_KUMA_DB_URL=mysql://${KUMA_DB_USER}:${KUMA_DB_PASSWORD_SECURE}@db:3306/uptime_kuma
+      - UPTIME_KUMA_DB_URL=mysql://kumadbuser:kumapass@db:3306/uptime_kuma
       - NODE_OPTIONS=--max-old-space-size=8192
     volumes:
       - ./data:/app/data
