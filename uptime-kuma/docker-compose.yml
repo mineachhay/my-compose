@@ -12,8 +12,6 @@ services:
       UPTIME_KUMA_DB_NAME: uptime_kuma
       UPTIME_KUMA_DB_USER: ${KUMA_DB_USER}
       UPTIME_KUMA_DB_PASSWORD: ${KUMA_DB_PASSWORD_SECURE}
-      NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=2048
     volumes:
       - kuma-data:/app/data
     ports:
