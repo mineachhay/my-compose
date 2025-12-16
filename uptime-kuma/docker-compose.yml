@@ -20,7 +20,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://10.62.0.28:3001"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001"]
       interval: 30s
       timeout: 5s
       retries: 5
